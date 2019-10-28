@@ -14,4 +14,4 @@ all:server.o client.o linklistdual.o common.o db.o
 
 .PHONY:clean
 clean:
-	rm *.o server client
+	rm *.o server client core

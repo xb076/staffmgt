@@ -33,6 +33,9 @@ int cmd_upduser_respsonse1(MySocket_p client, sqlite3 *db, MSG *msg);
 int cmd_upduser_respsonse2(MySocket_p client, sqlite3 *db, MSG *msg);
 int cmd_schuser_respsonse(MySocket_p client, sqlite3 *db);
 
+int cmd_addlog_reponse(MySocket_p client, sqlite3 *db, char* content);
+int cmd_schlog_respsonse(MySocket_p client, sqlite3 *db);
+
 void *epoll_thread(void *param);
 
 #endif //!__SERVER_H__

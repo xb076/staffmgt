@@ -30,7 +30,7 @@ int db_log_add(sqlite3 *db, Log *log);
 int db_log_del(sqlite3 *db, Log *log);
 int db_log_upd(sqlite3 *db, Log *log);
 int db_log_get(sqlite3 *db, Log *log);
-int db_log_all(sqlite3 *db, LinkList_p loglist);
+int db_log_all(sqlite3 *db, MySocket_p client, LinkList_p loglist);
 
 
 #endif //!__DB_H__

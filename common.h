@@ -75,8 +75,8 @@ enum CMD
 	CMD_SCH_USER_RES,
 
 
-	CMD_LOGOUT,
-	CMD_LOGOUT_RES,
+	CMD_SCH_LOG,
+	CMD_SCH_LOG_RES,
 	CMD_ERROR
 };
 
@@ -96,7 +96,7 @@ typedef struct USERINFO{
 typedef struct LOGINFO{
 	char time[32];
 	char username[32];
-	char words[64];
+	char content[32];
 
 }Log, *Log_p;
 
@@ -108,6 +108,8 @@ void STRING2NETMSG(MSG_p msg, char *buf);
 void printf_user(User_p user);
 void USER2STRING(User_p user, char *buf);
 void STRING2USER(User_p user, char *buf);
+void LOG2STRING(Log_p log, char *buf);
+void STRING2LOG(Log_p log, char *buf);
 
 //int mysocket_read(MySocket_p client);
 int SEND_NETMSG(MySocket_p client, int CMD, char* buf);

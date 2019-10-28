@@ -216,6 +216,11 @@ int server_dispatch(MySocket_p client, sqlite3 *db)
 				cmd_schuser_respsonse(client, db);
 				cmd_login_response_menu(client);
 				break;
+			case CMD_SCH_LOG:
+				printf("CMD: CMD_SCH_LOG\n");
+				cmd_schlog_respsonse(client, db);
+				cmd_login_response_menu(client);
+				break;
 			default:
 				break;
 		}
@@ -268,12 +273,15 @@ int cmd_login_response(MySocket_p client, sqlite3 *db, MSG *msg)
 	if(ret>0){
 		client->status=user.type;
 		strcpy(client->username, user.username);
+		cmd_addlog_reponse(client, db, "登录成功");
 		cmd_login_response_menu(client);
-
+		
 		ret=0;
 	}else{
 		ret =-1;
+		cmd_addlog_reponse(client, db, "登录失败");
 		ret = SEND_NETMSG(client, CMD_ERROR, "登录失败");
+		
 	}
 	
 
@@ -290,14 +298,14 @@ int cmd_login_response_menu(MySocket_p client)
 	{
 		case 100:
 			strcpy(buff, "*********************欢迎登录*********************\n");
-			strcat(buff, "1.修改密码 2.查询信息 3.退出\n");
+			strcat(buff, "1.修改密码 2.查询信息 3. 查询日志 4.退出\n");
 			strcat(buff, "请输入选择：");
 			ret=SEND_NETMSG(client, CMD_LOGIN_RES, buff);
 
 			break;
 		case 200:
 			strcpy(buff, "*********************系统管理*********************\n");
-			strcat(buff, "1.添加用户 2.删除用户 3.修改用户 4.查询用户 5.退出\n");
+			strcat(buff, "1.添加用户 2.删除用户 3.修改用户 4.查询用户 5.查询日志 6.退出\n");
 			strcat(buff, "请输入选择：");
 			ret=SEND_NETMSG(client, CMD_LOGIN_RES_ADMIN, buff);
 
@@ -333,12 +341,14 @@ int cmd_updpassword_reponse(MySocket_p client, sqlite3 *db, MSG *msg)
 		if(ret>0)
 		{
 			strcpy(buff, "修改密码成功！");
+			cmd_addlog_reponse(client, db, "修改密码成功");
 			ret=SEND_NETMSG(client, CMD_UPD_PASSWORD_RES, buff);
 			ret=cmd_init_respsonse(client);
 		}
 		else
 		{
 			strcpy(buff, "修改密码失败！");
+			cmd_addlog_reponse(client, db, "修改密码失败");
 			ret=SEND_NETMSG(client, CMD_UPD_PASSWORD_RES, buff);
 			ret=cmd_login_response_menu(client);
 		}
@@ -367,6 +377,7 @@ int cmd_schself_response(MySocket_p client, sqlite3 *db, MSG *msg)
 	char buff[BUFFSIZE]={0};
 	if(ret>0){
 		USER2STRING(&user, buff);
+		cmd_addlog_reponse(client, db, "查询用户信息");
 		ret=SEND_NETMSG(client, CMD_SCH_SELF_RES, buff);
 		ret=cmd_login_response_menu(client);
 	}
@@ -396,11 +407,13 @@ int cmd_adduser_respsonse(MySocket_p client, sqlite3 *db, MSG *msg)
 	ret=db_user_add(db, &user);
 	
 	char buff[32]={0};
-	if(ret>0)
+	if(ret>0){
 		strcpy(buff, "添加用户成功！");
-	else
+	}
+	else{
 		strcpy(buff, "添加用户失败！");
-
+	}
+	cmd_addlog_reponse(client, db, buff);
 	ret=SEND_NETMSG(client, CMD_ADD_USER_RES, buff);
 	ret=cmd_login_response_menu(client);
 	return ret;
@@ -420,11 +433,13 @@ int cmd_deluser_respsonse1(MySocket_p client, sqlite3 *db, MSG *msg)
 	ret=db_user_get(db, &user);
 	char buff[BUFFSIZE]={0};
 	if(ret>0){
+		cmd_addlog_reponse(client, db, "删除用户");
 		USER2STRING(&user, buff);
 		ret=SEND_NETMSG(client, CMD_DEL_USER_RES_1, buff);
 	}
 	else{
 		strcpy(buff, "用户不存在！");
+		cmd_addlog_reponse(client, db, "删除用户不存在");
 		ret=SEND_NETMSG(client, CMD_DEL_USER_RES_2, buff);
 		ret=cmd_login_response_menu(client);
 	}
@@ -451,6 +466,7 @@ int cmd_deluser_respsonse2(MySocket_p client, sqlite3 *db, MSG *msg)
 	else
 		strcpy(buff, "删除用户失败！");
 
+	cmd_addlog_reponse(client, db, buff);
 	ret=SEND_NETMSG(client, CMD_DEL_USER_RES_2, buff);
 
 	ret=cmd_login_response_menu(client);
@@ -470,11 +486,13 @@ int cmd_upduser_respsonse1(MySocket_p client, sqlite3 *db, MSG *msg)
 	ret=db_user_get(db, &user);
 	char buff[BUFFSIZE]={0};
 	if(ret>0){
+		cmd_addlog_reponse(client, db, "修改用户成功");
 		USER2STRING(&user, buff);
 		ret=SEND_NETMSG(client, CMD_UPD_USER_RES_1, buff);
 	}
 	else{
 		strcpy(buff, "用户不存在！");
+		cmd_addlog_reponse(client, db, "修改用户不存在");
 		ret=SEND_NETMSG(client, CMD_UPD_USER_RES_2, buff);
 		ret=cmd_login_response_menu(client);
 	}
@@ -500,6 +518,7 @@ int cmd_upduser_respsonse2(MySocket_p client, sqlite3 *db, MSG *msg)
 	else
 		strcpy(buff, "修改用户失败！");
 
+	cmd_addlog_reponse(client, db, buff);
 	ret=SEND_NETMSG(client, CMD_UPD_USER_RES_2, buff);
 	ret=cmd_login_response_menu(client);
 
@@ -525,11 +544,49 @@ int cmd_schuser_respsonse(MySocket_p client, sqlite3 *db)
 		data=NULL;
 	}
 	linklist_destroy(&pList);
+	cmd_addlog_reponse(client, db, "查找全部用户");
 
 	return ret;
 
 }
 
+int cmd_addlog_reponse(MySocket_p client, sqlite3 *db, char *content)
+{
+	int ret=0;
+
+	Log log;
+	bzero(&log, sizeof(Log));
+	get_time_now(log.time);
+	strcpy(log.username, client->username);
+	strcpy(log.content, content);
+
+	ret=db_log_add(db, &log);
+
+	return ret;
+
+}
+
+int cmd_schlog_respsonse(MySocket_p client, sqlite3 *db)
+{
+	int ret=0;
+	
+	LinkList_p pList=NULL;
+	linklist_create(&pList);
+
+	db_log_all(db, client, pList);
+	char *data=NULL;
+	while(linklist_length(pList)>0)
+	{
+		linklist_pop(pList, (datatype*)&data);
+		//printf("db_line: %s\n", data);
+		SEND_NETMSG(client, CMD_SCH_LOG_RES, data);
+		if(data) free(data);
+		data=NULL;
+	}
+	linklist_destroy(&pList);
+
+	return ret;
+}
 
 
 

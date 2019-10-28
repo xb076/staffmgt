@@ -266,11 +266,27 @@ int db_user_all(sqlite3 *db, LinkList_p userlist)
 
 
 
-
-
 int db_log_add(sqlite3 *db, Log *log)
 {
 	int ret=0;
+	char time[64]={0};
+
+	char sql[256]={0};
+	char *errmsg;
+
+	get_time_now(time);//获得当前的日期
+	bzero(sql, sizeof(sql));
+	sprintf(sql,"insert into loginfo values('%s', '%s', '%s')",
+			log->time,
+			log->username,
+			log->content
+			);
+	if(sqlite3_exec(db,sql,NULL,NULL,&errmsg)!=SQLITE_OK)
+	{
+		printf("error: <%s>\n<%s>\n",sql, errmsg);
+		ret = -1;
+	}
+
 
 	return ret;
 }
@@ -292,9 +308,55 @@ int db_log_get(sqlite3 *db, Log *log)
 
 	return ret;
 }
-int db_log_all(sqlite3 *db, LinkList_p loglist)
+int db_log_all(sqlite3 *db, MySocket_p client, LinkList_p loglist)
 {
 	int ret=0;
+
+	char sql[256]={0};
+	char *errmsg;
+	char **rep;
+	int n_row;
+	int n_column;
+
+	if(strcmp(client->username, "admin")==0)
+		sprintf(sql,"select * from loginfo");
+	else
+		sprintf(sql,"select * from loginfo where username='%s'", client->username);
+	if(sqlite3_get_table(db,sql,&rep,&n_row,&n_column,&errmsg)!=SQLITE_OK)
+	{
+		printf("sql<%s>\n<%s>\n", sql, errmsg);
+		ret=-1;
+	}
+	else
+	{
+		if(n_row==0)//查不到
+		{
+			ret=0;
+			printf("<%s>\nno find\n", sql);
+			
+		}
+		else  //只要行数大于0，无需打印，直接返回成功
+		{
+			int i,j;
+			ret=n_row;
+			
+			for(i=0;i<n_row+1;++i)
+			{
+				char *line=(char*)malloc(BUFFSIZE);
+				bzero(line, BUFFSIZE);
+				for(j=0;j<n_column;++j)	
+				{
+					strcat(line, *rep++);
+					strcat(line, "|");
+				}
+
+				linklist_push(loglist, (datatype)line);
+			}
+		}
+	}
+
+	return ret;
+
 
 	return ret;
 }

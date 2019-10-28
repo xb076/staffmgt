@@ -193,6 +193,11 @@ int client_dispatch(MySocket_p client)
 				cmd_schuser_result(client, &msg);
 				//printf("buff<%d>msg<%d>\n", client->buff_recv_len, msg.datalength);
 				break;
+
+			case CMD_SCH_LOG_RES:
+				cmd_schlog_result(client, &msg);
+				//printf("buff<%d>msg<%d>\n", client->buff_recv_len, msg.datalength);
+				break;
 			case CMD_ERROR:
 				printf("服务器消息：%s\n", msg.buff+1);
 				cmd_init_request(client);
@@ -294,8 +299,9 @@ int cmd_login_option(MySocket_p client, MSG *msg)
 				cmd_schself_request(client);
 				break;
 			case 3:
-				//bzero(client->buff_recv, sizeof(client->buff_recv));
-				//client->buff_recv_len=0;
+				cmd_schlog_request(client);
+				break;
+			case 4:
 				cmd_init_request(client);
 				break;
 			default:
@@ -331,8 +337,9 @@ int cmd_login_option_admin(MySocket_p client, MSG *msg)
 				cmd_schuser_request(client);
 				break;
 			case 5:
-				//bzero(client->buff_recv, sizeof(client->buff_recv));
-				//client->buff_recv_len=0;
+				cmd_schlog_request(client);
+				break;
+			case 6:
 				cmd_init_request(client);
 				break;
 			default:
@@ -627,6 +634,23 @@ int cmd_schuser_request(MySocket_p client)
 }
 
 int cmd_schuser_result(MySocket_p client, MSG *msg)
+{
+	int ret=0;
+
+	printf("%s\n", msg->buff+1);
+
+	return ret;
+}
+
+int cmd_schlog_request(MySocket_p client)
+{
+	int ret=0;
+	ret=SEND_NETMSG(client, CMD_SCH_LOG, "");
+
+	return ret;
+
+}
+int cmd_schlog_result(MySocket_p client, MSG *msg)
 {
 	int ret=0;
 

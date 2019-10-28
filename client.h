@@ -33,5 +33,9 @@ int cmd_upduser_result2(MySocket_p client, MSG *msg);
 int cmd_schuser_request(MySocket_p client);
 int cmd_schuser_result(MySocket_p client, MSG *msg);
 
+int cmd_schlog_request(MySocket_p client);
+int cmd_schlog_result(MySocket_p client, MSG *msg);
+
+
 void *epoll_thread(void *param);
 #endif //!__CLIENT_H__

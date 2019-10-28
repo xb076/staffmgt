@@ -70,6 +70,7 @@ void USER2STRING(User_p user, char *buf)
 	int level;
 	float salary;
 	*/
+	bzero(buf, sizeof(User));
 	sprintf(buf, "|%d|%d|%s|%s|%d|%s|%s|%s|%d|%.2f|",
 		user->id,
 		user->type,
@@ -202,6 +203,67 @@ void STRING2USER(User_p user, char *buf)
 	}
 	else{
 		user->salary=-1;
+	}
+
+}
+
+/*
+	typedef struct LOGINFO{
+	char time[32];
+	char username[32];
+	char words[32];
+
+	}Log, *Log_p;
+*/
+
+void LOG2STRING(Log_p log, char *buf)
+{
+	if(NULL==log || NULL == buf) return;
+
+	bzero(buf, sizeof(Log));
+	sprintf(buf, "|%s|%s|%s|",
+		log->time,
+		log->username,
+		log->content
+		);
+}
+void STRING2LOG(Log_p log, char *buf)
+{
+	if(NULL==log || NULL == buf) return;
+	bzero(log, sizeof(Log));
+
+	char temp[32]={0};
+	char *start = NULL;
+	char *end = NULL;
+
+	start = buf+1;
+	end = strchr(start, '|');
+	if(start && end && end>start){
+		strncpy(log->time, start, end-start);
+		bzero(temp, sizeof(temp));
+	}
+	else{
+		strcpy(log->time, "None");
+	}
+
+	start = end+1;
+	end = strchr(start, '|');
+	if(start && end && end>start){
+		strncpy(log->username, start, end-start);
+		bzero(temp, sizeof(temp));
+	}
+	else{
+		strcpy(log->username, "None");
+	}
+
+	start = end+1;
+	end = strchr(start, '|');
+	if(start && end && end>start){
+		strncpy(log->content, start, end-start);
+		bzero(temp, sizeof(temp));
+	}
+	else{
+		strcpy(log->content, "None");
 	}
 
 }
