@@ -1,0 +1,7 @@
+CREATE TABLE userinfo(id integer,type integer,username text,password text,age integer,phone text,addr text,date text,level integer,salary REAL);
+
+insert into userinfo values(1001,200,'admin','admin', 99, '01066666666', '北京海淀', '2019.9.23',10,30000.0);
+insert into userinfo values(1002,200,'zhangsan','123456', 33, '18612345678', '北京昌平', '2019.10.25',5,10000.0);
+insert into userinfo values(1003,100,'lisi','aaaaaa', 44, '13912345678', '北京丰台', '2019.10.25',3,1000.0);
+
+CREATE TABLE loginfo(time text,username text,words text);

@@ -1,0 +1,66 @@
+#ifndef __COMMON_H__
+#define __COMMON_H__
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/epoll.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <unistd.h>
+
+#include "linklistsingle.h"
+
+#define err_log(log)\
+	  do{\
+	  	perror(log);\
+		exit(1);\
+	  }while(0)  //出错处理的宏函数
+
+#define MAXCLIENTS 128
+#define BUFFSIZE 512
+
+
+struct NET_MSG{
+	short size;
+	short cmd;
+	char buff[BUFFSIZE];
+
+};
+
+
+struct mySocket{
+	int sock;
+	struct sockaddr_in sockAddr;
+	char buff_send[BUFFSIZE];
+	char buff_recv[BUFFSIZE];
+};
+
+
+enum CMD
+{
+	CMD_MENU,
+	CMD_LOGIN,
+	CMD_LOGIN_RESULT,
+	
+	CMD_ADD_EE,
+	CMD_DEL_EE,
+	CMD_UPD_EE,
+	CMD_SCH_EE,
+
+	CMD_LOGOUT,
+	CMD_LOGOUT_RESULT,
+	CMD_ERROR
+};
+
+
+struct DataHeader
+{
+	short dataLength;
+	short cmd;
+};
+
+#endif //!__COMMON_H__
